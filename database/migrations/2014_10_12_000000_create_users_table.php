@@ -25,7 +25,7 @@ return new class extends Migration
             $table->date('dateofbirth');
             // $table->timestamp('email_verified_at')->nullable();
             $table->text('hash'); 
-            $table->string('salt'); 
+            $table->text('salt'); 
             $table->rememberToken();
             $table->timestamps();
         });

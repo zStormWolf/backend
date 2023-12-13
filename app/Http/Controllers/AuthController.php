@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-
+use App\Models\User; 
 class AuthController extends Controller
 {
     /**
@@ -31,9 +32,8 @@ class AuthController extends Controller
     {
         try {
             $credentials = $request->only('username', 'password');
-    
-            if (Auth::attempt($credentials)) {
-                $user = Auth::user();
+            $user = User::where('username', $credentials['username'])->first();
+            if ($user && Hash::check($credentials['password'] . $user->salt, $user->hash)) {
                 $token = $user->createToken('auth_token')->plainTextToken;
     
                 Log::info('Inicio de sesión exitoso para el usuario: ' . $user->username);

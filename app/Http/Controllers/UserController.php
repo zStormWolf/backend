@@ -29,51 +29,52 @@ class UserController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        try {
-            // Obtener los datos de la solicitud
-            $data = $request->all();
+{
+    try {
+        // Obtener los datos de la solicitud
+        $data = $request->all();
 
-            // Verificar si el email ya existe en la base de datos
-            $existingEmail = User::where('email', $data['email'])->first();
-            if ($existingEmail) {
-                return response()->json(['message' => 'El correo electrónico ya está registrado'], 422);
-            }
-
-            // Verificar si la cedula ya existe en la base de datos
-            $existingCedula = User::where('cedula', $data['cedula'])->first();
-            if ($existingCedula) {
-                return response()->json(['message' => 'La cédula ya está registrada'], 422);
-            }
-
-            // Verificar si el username ya existe en la base de datos
-            $existingUsername = User::where('username', $data['username'])->first();
-            if ($existingUsername) {
-                return response()->json(['message' => 'El nombre de usuario ya está registrado'], 422);
-            }
-
-            // Generar un nuevo salt
-            $salt = bin2hex(random_bytes(16));
-
-            // Combinar la contraseña del formulario con el salt y cifrarla
-            $hashedPassword = Hash::make($data['password'] . $salt);
-    
-            // Agregar hash y salt al array de datos
-            $data['hash'] = $hashedPassword;
-            $data['salt'] = $salt;
-    
-            // Crear el usuario con los datos proporcionados
-            $user = User::create($data);
-
-            return response()->json(['message' => 'Usuario creado exitosamente'], 201);
-        } catch (QueryException $e) {
-            // Manejar el error de la base de datos
-            return response()->json(500);
-        } catch (\Exception $e) {
-            // Manejar cualquier excepción que pueda ocurrir
-            return response()->json(['message' => 'Error en el servidor: '], 500);
+        // Verificar si el email ya existe en la base de datos
+        $existingEmail = User::where('email', $data['email'])->first();
+        if ($existingEmail) {
+            return response()->json(['message' => 'El correo electrónico ya está registrado'], 422);
         }
+
+        // Verificar si la cedula ya existe en la base de datos
+        $existingCedula = User::where('cedula', $data['cedula'])->first();
+        if ($existingCedula) {
+            return response()->json(['message' => 'La cédula ya está registrada'], 422);
+        }
+
+        // Verificar si el username ya existe en la base de datos
+        $existingUsername = User::where('username', $data['username'])->first();
+        if ($existingUsername) {
+            return response()->json(['message' => 'El nombre de usuario ya está registrado'], 422);
+        }
+
+        $salt = bin2hex(random_bytes(16));
+
+        // Combinar la contraseña del formulario con el salt y cifrarla
+        $hashedPassword = Hash::make($data['password'] . $salt);
+
+        // Almacenar el hash cifrado en el array de datos
+        $data['hash'] = $hashedPassword;
+
+        // Almacenar el salt en el array de datos
+        $data['salt'] = $salt;
+
+        // Crear el usuario con los datos proporcionados
+        $user = User::create($data);
+
+        return response()->json(['message' => 'Usuario creado exitosamente'], 201);
+    } catch (QueryException $e) {
+        // Manejar el error de la base de datos
+        return response()->json(500);
+    } catch (\Exception $e) {
+        // Manejar cualquier excepción que pueda ocurrir
+        return response()->json(['message' => 'Error en el servidor: '], 500);
     }
+}
 
     /**
      * Display the specified resource.
