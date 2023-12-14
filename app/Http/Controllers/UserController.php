@@ -137,6 +137,17 @@ class UserController extends Controller
                 }
             }
 
+            $salt = bin2hex(random_bytes(16));
+
+            // Combinar la contraseña del formulario con el salt y cifrarla
+            $hashedPassword = Hash::make($data['password'] . $salt);
+    
+            // Almacenar el hash cifrado en el array de datos
+            $data['hash'] = $hashedPassword;
+    
+            // Almacenar el salt en el array de datos
+            $data['salt'] = $salt;
+
             // Actualizar los datos del usuario
             $user->update($data);
 
