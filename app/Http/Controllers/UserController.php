@@ -34,6 +34,7 @@ class UserController extends Controller
         // Obtener los datos de la solicitud
         $data = $request->all();
 
+        
         // Verificar si el email ya existe en la base de datos
         $existingEmail = User::where('email', $data['email'])->first();
         if ($existingEmail) {
@@ -72,7 +73,7 @@ class UserController extends Controller
         return response()->json(500);
     } catch (\Exception $e) {
         // Manejar cualquier excepción que pueda ocurrir
-        return response()->json(['message' => 'Error en el servidor: '], 500);
+        return response()->json(['message' => 'Error en el servidor: '.$e], 500);
     }
 }
 
