@@ -34,7 +34,7 @@ class UserController extends Controller
         // Obtener los datos de la solicitud
         $data = $request->all();
 
-        
+
         // Verificar si el email ya existe en la base de datos
         $existingEmail = User::where('email', $data['email'])->first();
         if ($existingEmail) {
@@ -87,7 +87,23 @@ class UserController extends Controller
             $user = User::findOrFail($id);
 
             // Retornar la información del usuario
-            return response()->json(['data' => $user], 200);
+            return response()->json([
+                'message' => 'Inicio de sesión exitoso',
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    // Agrega otros campos necesarios aquí
+                    'country' => $user->country,
+                    'city' => $user->city,
+                    'address' => $user->address,
+                    'office' => $user->office,
+                    'tel' => $user->tel,
+                    'dateofbirth' => $user->dateofbirth,
+                    // ... Agrega cualquier otro campo necesario
+                ],
+            ], 200);
+
         } catch (\Exception $e) {
             // Manejar cualquier excepción que pueda ocurrir, por ejemplo, si no se encuentra el usuario
             return response()->json(['message' => 'Error en el servidor'], 500);
@@ -142,10 +158,10 @@ class UserController extends Controller
 
             // Combinar la contraseña del formulario con el salt y cifrarla
             $hashedPassword = Hash::make($data['password'] . $salt);
-    
+
             // Almacenar el hash cifrado en el array de datos
             $data['hash'] = $hashedPassword;
-    
+
             // Almacenar el salt en el array de datos
             $data['salt'] = $salt;
 

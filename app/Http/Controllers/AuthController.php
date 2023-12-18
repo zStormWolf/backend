@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use App\Models\User; 
+use App\Models\User;
 class AuthController extends Controller
 {
     /**
@@ -35,30 +35,42 @@ class AuthController extends Controller
             $user = User::where('username', $credentials['username'])->first();
             if ($user && Hash::check($credentials['password'] . $user->salt, $user->hash)) {
                 $token = $user->createToken('auth_token')->plainTextToken;
-    
+
                 Log::info('Inicio de sesión exitoso para el usuario: ' . $user->username);
-    
+
                 return response()->json([
                     'message' => 'Inicio de sesión exitoso',
                     'token' => $token,
-                    'user' => collect($user)->except('password'),
+                    'user' => collect($user)->only([
+                        'id',
+                        'name',
+                        'email',
+                        'cedula',
+                        'username',
+                        'country',
+                        'city',
+                        'address',
+                        'office',
+                        'tel',
+                        'dateofbirth',
+                    ]),
                 ]);
             }
-    
+
             Log::warning('Intento de inicio de sesión fallido para el usuario: ' . $credentials['username']);
-    
+
             return response()->json(['message' => 'Credenciales incorrectas'], 401);
         } catch (\Exception $e) {
             Log::error('Error en el servidor: ' . $e->getMessage());
-    
+
             return response()->json(['message' => 'Error en el servidor: ' . $e->getMessage()], 500);
         }
     }
-    
-    
-    
-    
-    
+
+
+
+
+
 
     /**
      * Display the specified resource.
