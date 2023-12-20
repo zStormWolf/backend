@@ -28,10 +28,24 @@ class User extends Authenticatable implements MustVerifyEmail
         'office',
         'tel',
         'dateofbirth',
+        'status',
+        'role_id',
+        'tariff_id',
+        // 'role',
+        // 'tariff',
         'hash',
         'salt',
     ];
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
 
+    // Relación con el modelo Tariff
+    public function tariff()
+    {
+        return $this->belongsTo(Tariff::class, 'tariff_id');
+    }
     /**
      * The attributes that should be hidden for serialization.
      *

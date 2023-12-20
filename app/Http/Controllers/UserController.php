@@ -69,11 +69,10 @@ class UserController extends Controller
 
         return response()->json(['message' => 'Usuario creado exitosamente'], 201);
     } catch (QueryException $e) {
-        // Manejar el error de la base de datos
         return response()->json(500);
     } catch (\Exception $e) {
         // Manejar cualquier excepción que pueda ocurrir
-        return response()->json(['message' => 'Error en el servidor: '.$e], 500);
+        return response()->json(['message' => 'Error en el servidor: '], 500);
     }
 }
 
@@ -93,19 +92,18 @@ class UserController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    // Agrega otros campos necesarios aquí
                     'country' => $user->country,
                     'city' => $user->city,
                     'address' => $user->address,
                     'office' => $user->office,
                     'tel' => $user->tel,
                     'dateofbirth' => $user->dateofbirth,
-                    // ... Agrega cualquier otro campo necesario
+                    'role' => $user->role,
+                    'tariff' => $user->tariff,
                 ],
             ], 200);
 
         } catch (\Exception $e) {
-            // Manejar cualquier excepción que pueda ocurrir, por ejemplo, si no se encuentra el usuario
             return response()->json(['message' => 'Error en el servidor'], 500);
         }
     }
@@ -127,10 +125,7 @@ class UserController extends Controller
             // Obtener los datos de la solicitud
             $data = $request->all();
 
-            // Encontrar el usuario por ID
             $user = User::findOrFail($id);
-
-            // Verificar si el nuevo correo electrónico ya existe en la base de datos
             if ($data['email'] !== $user->email) {
                 $existingEmail = User::where('email', $data['email'])->first();
                 if ($existingEmail) {
@@ -138,7 +133,6 @@ class UserController extends Controller
                 }
             }
 
-            // Verificar si la nueva cédula ya existe en la base de datos
             if ($data['cedula'] !== $user->cedula) {
                 $existingCedula = User::where('cedula', $data['cedula'])->first();
                 if ($existingCedula) {
@@ -146,7 +140,6 @@ class UserController extends Controller
                 }
             }
 
-            // Verificar si el nuevo nombre de usuario ya existe en la base de datos
             if ($data['username'] !== $user->username) {
                 $existingUsername = User::where('username', $data['username'])->first();
                 if ($existingUsername) {
@@ -156,16 +149,12 @@ class UserController extends Controller
 
             $salt = bin2hex(random_bytes(16));
 
-            // Combinar la contraseña del formulario con el salt y cifrarla
             $hashedPassword = Hash::make($data['password'] . $salt);
 
-            // Almacenar el hash cifrado en el array de datos
             $data['hash'] = $hashedPassword;
 
-            // Almacenar el salt en el array de datos
             $data['salt'] = $salt;
 
-            // Actualizar los datos del usuario
             $user->update($data);
 
             return response()->json(['message' => 'Usuario actualizado exitosamente']);
@@ -175,13 +164,9 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         try {
-            // Buscar el usuario por su ID
             $user = User::findOrFail($id);
 
             // Eliminar el usuario
@@ -189,8 +174,7 @@ class UserController extends Controller
 
             return response()->json(['message' => 'Usuario eliminado exitosamente']);
         } catch (\Exception $e) {
-            // Manejar cualquier excepción que pueda ocurrir
-            return response()->json(['message' => 'Error en el servidor: ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Error en el servidor: '], 500);
         }
     }
 }

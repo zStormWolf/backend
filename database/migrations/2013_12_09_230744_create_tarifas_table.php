@@ -8,16 +8,17 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('paquetes', function (Blueprint $table) {
+        Schema::create('tariffs', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
-            $table->text('descripcion');
+            $table->string('name');
+            $table->decimal('cost', 8, 2);
+            $table->string('color');
             $table->timestamps();
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('paquetes');
+        Schema::dropIfExists('tariff');
     }
 };

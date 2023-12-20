@@ -2,23 +2,17 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TarifaController;
-use App\Http\Controllers\PaqueteController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 
-// Rutas para tarifas
-Route::get('tarifas', [TarifaController::class, 'index']);
-Route::post('tarifas', [TarifaController::class, 'store']);
-Route::get('tarifas/{tarifa}', [TarifaController::class, 'show']);
-Route::put('tarifas/{tarifa}', [TarifaController::class, 'update']);
-Route::delete('tarifas/{tarifa}', [TarifaController::class, 'destroy']);
+// // Rutas para tarifas
+Route::get('/tariffs', [TariffController::class, 'index']);
+Route::get('/tariffs/{tariff}', [TariffController::class, 'show']);
+Route::post('/tariffs', [TariffController::class, 'store']);
+Route::put('/tariffs/{tariff}', [TariffController::class, 'update']);
+Route::delete('/tariffs/{tariff}', [TariffController::class, 'destroy']);
 
-// Rutas para paquetes
-Route::get('paquetes', [PaqueteController::class, 'index']);
-Route::post('paquetes', [PaqueteController::class, 'store']);
-Route::get('paquetes/{paquete}', [PaqueteController::class, 'show']);
-Route::put('paquetes/{paquete}', [PaqueteController::class, 'update']);
-Route::delete('paquetes/{paquete}', [PaqueteController::class, 'destroy']);
+
 
 // Rutas para user
 Route::get('users', [UserController::class, 'index']);

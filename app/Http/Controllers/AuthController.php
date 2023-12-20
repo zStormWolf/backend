@@ -38,22 +38,38 @@ class AuthController extends Controller
 
                 Log::info('Inicio de sesión exitoso para el usuario: ' . $user->username);
 
+                $user = User::with('role', 'tariff')->find($user->id);
+
                 return response()->json([
                     'message' => 'Inicio de sesión exitoso',
                     'token' => $token,
-                    'user' => collect($user)->only([
-                        'id',
-                        'name',
-                        'email',
-                        'cedula',
-                        'username',
-                        'country',
-                        'city',
-                        'address',
-                        'office',
-                        'tel',
-                        'dateofbirth',
-                    ]),
+                    // 'user' => collect($user)->only([
+                        'user' => [
+                            'id' => $user->id,
+                            'name' => $user->name,
+                            'email' => $user->email,
+                            'cedula' => $user->cedula,
+                            'username' => $user->username,
+                            'country' => $user->country,
+                            'city' => $user->city,
+                            'address' => $user->address,
+                            'office' => $user->office,
+                            'tel' => $user->tel,
+                            'dateofbirth' => $user->dateofbirth,
+                            'status' => $user->status,
+                        // 'role',
+                        // 'tariff'
+                        'role' => [
+                            'id' => $user->role->id,
+                            'level' => $user->role->level,
+                            'name' => $user->role->name,
+                        ],
+                        'tariff' => [
+                            'id' => $user->tariff->id,
+                            'name' => $user->tariff->name,
+                            'color' => $user->tariff->color,
+                        ],
+                    ],
                 ]);
             }
 

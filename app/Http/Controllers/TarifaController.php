@@ -3,28 +3,44 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Tarifa;
+use App\Models\Tariff;
 class TarifaController extends Controller
 {
     public function index()
     {
-        $tarifas = Tarifa::all();
-        return response()->json(['tarifas' => $tarifas]);
+        try {
+            $tariffs = Tariff::all();
+            return response()->json(['tariffs' => $tariffs], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error en el servidor'], 500);
+        }
     }
 
-    public function create()
+    public function show(Tariff $tariff)
     {
-        // No necesitas una vista para la creación
+        try {
+            return response()->json(['tariff' => $tariff], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error en el servidor'], 500);
+        }
     }
+
 
     public function store(Request $request)
     {
-        $tarifa = new Tarifa();
-        $tarifa->nombre = $request->input('nombre');
-        $tarifa->precio = $request->input('precio');
-        $tarifa->save();
+        try {
+            $request->validate([
+                'name' => 'required',
+                'cost' => 'required',
+                'color' => 'required',
+            ]);
 
-        return response()->json(['message' => 'Tarifa creada exitosamente']);
+            $tariff = Tariff::create($request->all());
+
+            return response()->json(['message' => 'Tarifa creado exitosamente', 'tariff' => $tariff], 201);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error en el servidor'], 500);
+        }
     }
 
     public function edit($id)
@@ -32,21 +48,30 @@ class TarifaController extends Controller
         // No necesitas una vista para la edición
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Tariff $tariff)
     {
-        $tarifa = Tarifa::find($id);
-        $tarifa->nombre = $request->input('nombre');
-        $tarifa->precio = $request->input('precio');
-        $tarifa->save();
+       try {
+            $request->validate([
+                'name' => 'required',
+                'cost' => 'required',
+                'color' => 'required',
+            ]);
 
-        return response()->json(['message' => 'Tarifa actualizada exitosamente']);
+            $tariff->update($request->all());
+
+            return response()->json(['message' => 'Tarifa actualizado exitosamente', 'tariff' => $tariff], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error en el servidor'], 500);
+        }
     }
 
-    public function destroy($id)
+    public function destroy(Tariff $tariff)
     {
-        $tarifa = Tarifa::find($id);
-        $tarifa->delete();
-
-        return response()->json(['message' => 'Tarifa eliminada exitosamente']);
+        try {
+            $tariff->delete();
+            return response()->json(['message' => 'Tarifa eliminado exitosamente'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error en el servidor'], 500);
+        }
     }
 }
