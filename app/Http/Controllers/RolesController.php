@@ -16,10 +16,17 @@ class RolesController extends Controller
         }
     }
 
-    public function show(Roles $roles){
+    public function show($id){
         try {
-            return response()->json(['role' => $role], 200);
-        } catch (\Exception $e) {
+
+            $Roles = Role::findOrFail($id);
+
+
+            return response()->json([$Roles], 200);
+
+        }catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['message' => 'Rol no encontrado'], 404);
+        }catch (\Exception $e) {
             return response()->json(['message' => 'Error en el servidor'], 500);
         }
     }
@@ -27,10 +34,13 @@ class RolesController extends Controller
     public function store(Request $request)
     {
         try {
-            $request->validate([
-                'name' => 'required',
-                'level' => 'required',
-            ]);
+
+            $data = $request->all();
+
+            $existingName = Tariff::where('name', $data['name'])->first();
+            if ($existingName) {
+                return response()->json(['message' => 'El nombre ya está registrada'], 422);
+            }
 
             $role = Role::create($request->all());
 

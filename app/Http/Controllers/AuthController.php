@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Log;
 use App\Models\User;
 class AuthController extends Controller
 {
+     public function __construct()
+     {
+         $this->middleware('auth:sanctum', ['except' => ['login','register'] ]);
+     }
     /**
      * Display a listing of the resource.
      */
@@ -33,6 +37,10 @@ class AuthController extends Controller
         try {
             $credentials = $request->only('username', 'password');
             $user = User::where('username', $credentials['username'])->first();
+            if (!$user) {
+                // El usuario no existe en la base de datos
+                return response()->json(['message' => 'El usuario no existe'], 404);
+            }
             if ($user && Hash::check($credentials['password'] . $user->salt, $user->hash)) {
                 $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -41,7 +49,6 @@ class AuthController extends Controller
                 $user = User::with('role', 'tariff')->find($user->id);
 
                 return response()->json([
-                    'message' => 'Inicio de sesión exitoso',
                     'token' => $token,
                     // 'user' => collect($user)->only([
                         'user' => [
@@ -75,7 +82,8 @@ class AuthController extends Controller
 
             Log::warning('Intento de inicio de sesión fallido para el usuario: ' . $credentials['username']);
 
-            return response()->json(['message' => 'Credenciales incorrectas'], 401);
+            return response()->json(['message' => 'Contreaseña incorrecta'], 401);
+
         } catch (\Exception $e) {
             Log::error('Error en el servidor: ' . $e->getMessage());
 

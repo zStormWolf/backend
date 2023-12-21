@@ -10,17 +10,23 @@ class TarifaController extends Controller
     {
         try {
             $tariffs = Tariff::all();
-            return response()->json(['tariffs' => $tariffs], 200);
+            return response()->json($tariffs, 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error en el servidor'], 500);
         }
     }
 
-    public function show(Tariff $tariff)
+    public function show($id)
     {
         try {
-            return response()->json(['tariff' => $tariff], 200);
-        } catch (\Exception $e) {
+
+            $tarifa = Tariff::findOrFail($id);
+
+
+            return response()->json([$tarifa], 200);
+        }catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['message' => 'Tarifa no encontrada'], 404);
+        }catch (\Exception $e) {
             return response()->json(['message' => 'Error en el servidor'], 500);
         }
     }
@@ -29,15 +35,25 @@ class TarifaController extends Controller
     public function store(Request $request)
     {
         try {
-            $request->validate([
-                'name' => 'required',
-                'cost' => 'required',
-                'color' => 'required',
-            ]);
+            $data = $request->all();
 
-            $tariff = Tariff::create($request->all());
 
-            return response()->json(['message' => 'Tarifa creado exitosamente', 'tariff' => $tariff], 201);
+            $existingName = Tariff::where('name', $data['name'])->first();
+        if ($existingName) {
+            return response()->json(['message' => 'El nombre ya está registrada'], 422);
+        }
+
+        $existingColor = Tariff::where('color', $data['color'])->first();
+        if ($existingColor) {
+            return response()->json(['message' => 'El color ya está registrado'], 422);
+        }
+
+
+
+        $tarifa = Tariff::create($data);
+
+
+            return response()->json(['message' => 'Tarifa creado exitosamente'], 201);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error en el servidor'], 500);
         }
@@ -48,27 +64,31 @@ class TarifaController extends Controller
         // No necesitas una vista para la edición
     }
 
-    public function update(Request $request, Tariff $tariff)
+    public function update(Request $request,string $id)
     {
        try {
-            $request->validate([
-                'name' => 'required',
-                'cost' => 'required',
-                'color' => 'required',
-            ]);
 
-            $tariff->update($request->all());
+        $data = $request->all();
 
-            return response()->json(['message' => 'Tarifa actualizado exitosamente', 'tariff' => $tariff], 200);
+        $tarifa = Tariff::findOrFail($id);
+
+            $tarifa->update($data);
+
+
+            return response()->json(['message' => 'Tarifa actualizado exitosamente'], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error en el servidor'], 500);
         }
     }
 
-    public function destroy(Tariff $tariff)
+    public function destroy(string $id)
     {
         try {
-            $tariff->delete();
+            $tarifa = Tariff::findOrFail($id);
+
+            $tarifa->delete();
+
+
             return response()->json(['message' => 'Tarifa eliminado exitosamente'], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error en el servidor'], 500);

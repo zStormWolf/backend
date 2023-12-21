@@ -14,7 +14,7 @@ class UserController extends Controller
             $users = User::all();
             return response()->json($users, 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error en el servidor']);
+            return response()->json(['message' => 'Error en el servidor'],500);
         }
     }
 
@@ -87,23 +87,24 @@ class UserController extends Controller
 
             // Retornar la información del usuario
             return response()->json([
-                'message' => 'Inicio de sesión exitoso',
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'country' => $user->country,
-                    'city' => $user->city,
-                    'address' => $user->address,
-                    'office' => $user->office,
-                    'tel' => $user->tel,
-                    'dateofbirth' => $user->dateofbirth,
-                    'role' => $user->role,
-                    'tariff' => $user->tariff,
-                ],
+                'user' => collect($user)->except([
+                    'id' ,
+                    'name' ,
+                    'email' ,
+                    'country' ,
+                    'city',
+                    'address',
+                    'office' ,
+                    'tel' ,
+                    'dateofbirth',
+                    'role' ,
+                    'tariff' ,
+                ]),
             ], 200);
 
-        } catch (\Exception $e) {
+        }catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }catch (\Exception $e) {
             return response()->json(['message' => 'Error en el servidor'], 500);
         }
     }
@@ -125,7 +126,12 @@ class UserController extends Controller
             // Obtener los datos de la solicitud
             $data = $request->all();
 
-            $user = User::findOrFail($id);
+            $user = User::where('id',$id)->first();
+
+            if(!$user){
+                return reponse()->json(['message'=>"Usuario no encontrado"],422);
+            }
+
             if ($data['email'] !== $user->email) {
                 $existingEmail = User::where('email', $data['email'])->first();
                 if ($existingEmail) {
@@ -146,18 +152,21 @@ class UserController extends Controller
                     return response()->json(['message' => 'El nombre de usuario ya está registrado'], 422);
                 }
             }
+            if($data['password']){
 
-            $salt = bin2hex(random_bytes(16));
+                $salt = bin2hex(random_bytes(16));
 
-            $hashedPassword = Hash::make($data['password'] . $salt);
+                $hashedPassword = Hash::make($data['password'] . $salt);
 
-            $data['hash'] = $hashedPassword;
+                $data['hash'] = $hashedPassword;
 
-            $data['salt'] = $salt;
+                $data['salt'] = $salt;
+            }
+
 
             $user->update($data);
 
-            return response()->json(['message' => 'Usuario actualizado exitosamente']);
+            return response()->json(['message' => 'Usuario actualizado exitosamente'],201);
         } catch (\Exception $e) {
             // Manejar cualquier excepción que pueda ocurrir
             return response()->json(['message' => 'Error en el servidor: '], 500);
@@ -167,14 +176,16 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         try {
-            $user = User::findOrFail($id);
+            $user = User::where('id',$id)->first();
 
-            // Eliminar el usuario
+            if(!$user){
+                return response()->json(['message' => 'Usuario no encontrado'],422);
+            }
             $user->delete();
 
-            return response()->json(['message' => 'Usuario eliminado exitosamente']);
+            return response()->json(['message' => 'Usuario eliminado exitosamente'],200);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error en el servidor: '], 500);
+            return response()->json(['message' => 'Error en el servidor: '.$e], 500);
         }
     }
 }
